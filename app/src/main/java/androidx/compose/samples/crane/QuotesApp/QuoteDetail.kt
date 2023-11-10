@@ -1,5 +1,6 @@
 package androidx.compose.samples.crane.QuotesApp
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,12 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun QuoteDetail(quote: Quote) {
+
+    // Back Button Handling..//
+    BackHandler {
+        DataManager.switchPages(null)
+    }
+
     Box(contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize(1f)
