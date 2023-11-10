@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,6 +45,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.samples.crane.QuotesApp.DataManager
+import androidx.compose.samples.crane.QuotesApp.QuoteListScreen
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.details.launchDetailsActivity
 import androidx.compose.samples.crane.ui.CraneTheme
@@ -63,6 +66,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.internal.wait
 
 @AndroidEntryPoint
@@ -71,8 +78,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContent { 
-            PreviewFun1()
+        CoroutineScope(Dispatchers.IO).launch{
+            DataManager.loadAssetsFromFile(this@MainActivity)
+        }
+        setContent {
+            //PreviewFun1()
+            App()
         }
 
 //        setContent {
@@ -85,6 +96,21 @@ class MainActivity : ComponentActivity() {
 //                })
 //            }
 //        }
+    }
+}
+@Preview(showBackground = true, name = "My Quotes App")
+@Composable
+fun App() {
+    if(DataManager.isDataLoaded.value){
+        QuoteListScreen(data = DataManager.data) {
+
+        }
+    }else{
+        Log.d(MainActivity::class.simpleName, "App: Show Loader")
+        Box (contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize(1f)){
+            Text(text = "Loading...", style = MaterialTheme.typography.h6)
+
+        }
     }
 }
 
@@ -137,7 +163,8 @@ fun LayoutCompose() {
         ) {
         Image(painter = painterResource(id = R.drawable.ic_person)
             , contentScale = ContentScale.Crop,
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier
+                .size(100.dp)
                 .clip(CircleShape)
                 .border(2.dp, Color.White, CircleShape)
             , contentDescription = "Person")
@@ -146,13 +173,14 @@ fun LayoutCompose() {
     Row (horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically){
         Text(text = "A", fontSize = 25.sp,
-            modifier = Modifier.background(Color.White)
+            modifier = Modifier
+                .background(Color.White)
                 .size(150.dp)
                 .padding(2.dp)
                 .border(4.dp, Color.Red)
                 .clip(CircleShape)
                 .background(Color.Yellow)
-                .clickable {  }
+                .clickable { }
                 .fillMaxWidth(0.5f)
 
         )
