@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.samples.crane.QuotesApp.DataManager
+import androidx.compose.samples.crane.QuotesApp.QuoteDetail
 import androidx.compose.samples.crane.QuotesApp.QuoteListScreen
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.details.launchDetailsActivity
@@ -98,12 +99,22 @@ class MainActivity : ComponentActivity() {
 //        }
     }
 }
+
+enum class Pages{
+    LISTING,
+    DETAIL
+}
+
 @Preview(showBackground = true, name = "My Quotes App")
 @Composable
 fun App() {
     if(DataManager.isDataLoaded.value){
-        QuoteListScreen(data = DataManager.data) {
-
+        if(DataManager.currentPage.value == Pages.LISTING) {
+            QuoteListScreen(data = DataManager.data) {
+                DataManager.switchPages(it)
+            }
+        }else{
+            DataManager.currentQuote?.let { QuoteDetail(quote = it) }
         }
     }else{
         Log.d(MainActivity::class.simpleName, "App: Show Loader")

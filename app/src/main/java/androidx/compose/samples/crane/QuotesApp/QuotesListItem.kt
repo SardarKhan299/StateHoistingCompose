@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun QuotesListItem(quote: Quote,onclick:()->Unit) {
+fun QuotesListItem(quote: Quote,onclick:(quote:Quote)->Unit) {
     Card(elevation = 4.dp, modifier = Modifier.padding(8.dp)
-        .clickable { onclick() }) {
+        .clickable { onclick(quote) }) {
         Row (modifier = Modifier.padding(16.dp)){
             Image(imageVector = Icons.Filled.Close, contentDescription ="",
                 colorFilter = ColorFilter.tint(Color.White),

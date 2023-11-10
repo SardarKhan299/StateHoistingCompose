@@ -13,7 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun QuoteListScreen(data:Array<Quote>,onClick:()->Unit) {
+fun QuoteListScreen(data:Array<Quote>,onClick:(quote:Quote)->Unit) {
     Column {
         Text(text = "Quotes App",
             textAlign = TextAlign.Center,
@@ -21,8 +21,6 @@ fun QuoteListScreen(data:Array<Quote>,onClick:()->Unit) {
             style = MaterialTheme.typography.h5,
             fontFamily = FontFamily(Font(R.font.raleway_regular))
             )
-        QuoteList(data =data ) {
-            onClick()
-        }
+        QuoteList(data =data ,onClick)
     }
 }
