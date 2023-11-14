@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.samples.crane.home.LandingScreen
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.delay
@@ -142,6 +143,26 @@ fun Counter(value: Int) {
         Log.d(SideEffectExample::class.simpleName, "Counter: value is ${state.value}")
     }
     Text(text = value.toString())
+}
+
+fun a(){
+    Log.d(SideEffectExample::class.simpleName, "a: I am function a")
+}
+
+fun b(){
+    Log.d(SideEffectExample::class.simpleName, "b: I am function b")
+}
+
+@Preview
+@Composable
+fun RememberUpdatedStateExample() {
+    var state = rememberSaveable{
+        mutableStateOf(::a)
+    }
+    Button(onClick = { state.value = ::b }) {
+        Text(text = "Click to change State")
+    }
+    LandingScreen(onTimeout = { state.value})
 }
 
 class SideEffectExample {
