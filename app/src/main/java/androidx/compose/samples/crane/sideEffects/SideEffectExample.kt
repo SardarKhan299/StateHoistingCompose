@@ -1,15 +1,23 @@
 package androidx.compose.samples.crane.sideEffects
 
+import android.util.Log
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
@@ -36,4 +44,80 @@ fun ListComposable() {
 
 fun fetchList(): List<String> {
     return listOf("One","Two","Three","Four")
+}
+
+
+@Composable
+fun LaunchEffectComposable() {
+    val counter = rememberSaveable { mutableIntStateOf(0) }
+
+    // it gave us the scope to launch coroutine..//
+    // no effect of recomposition.//
+    // all side-effects runs in controlled environment.//
+    var scope = rememberCoroutineScope()
+
+
+    LaunchedEffect(key1 = Unit){
+        Log.d("Launched Effect", "LaunchEffectComposable: Stared")
+        try {
+            for (i in 1..10) {
+                counter.intValue++
+                delay(1000)
+            }
+        }catch (e:Exception){
+            Log.d("Launched Effect", "LaunchEffectComposable: Exception ${e.message} ")
+        }
+    }
+    
+    var text = "Counter is running ${counter.value}"
+    if(counter.value==10){
+        text = "Counter Stopped"
+    }
+
+    Text(text = text)
+
+}
+
+@Preview
+@Composable
+fun RememberCoroutineExample() {
+
+    val counter = rememberSaveable { mutableIntStateOf(0) }
+
+    // it gave us the scope to launch coroutine..//
+    // no effect of recomposition.//
+    // all side-effects runs in controlled environment.//
+    var scope = rememberCoroutineScope()
+
+
+
+    var text = "Counter is running ${counter.value}"
+    if(counter.value==10){
+        text = "Counter Stopped"
+    }
+
+    Column {
+        Text(text = text)
+        Button(onClick = {
+            scope.launch {
+                Log.d(SideEffectExample::class.simpleName, "RememberCoroutineExample: ")
+                try {
+                    for (i in 1..10) {
+                        counter.intValue++
+                        delay(1000)
+                    }
+                }catch (e:Exception){
+                    Log.d("Launched Effect", "LaunchEffectComposable: Exception ${e.message} ")
+                }
+            }
+        }) {
+            Text(text = "Start Counter...")
+        }
+    }
+
+    
+}
+
+class SideEffectExample {
+
 }
