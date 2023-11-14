@@ -12,9 +12,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -116,6 +116,32 @@ fun RememberCoroutineExample() {
     }
 
     
+}
+
+@Preview
+@Composable
+fun RememberUpdatedState() {
+    var counter = rememberSaveable {
+        mutableIntStateOf(0)
+    }
+
+    LaunchedEffect(key1 = Unit){
+        delay(2000)
+        counter.value = 10
+    }
+
+    Counter(counter.value)
+
+}
+
+@Composable
+fun Counter(value: Int) {
+    val state = rememberUpdatedState(newValue = value)
+    LaunchedEffect(key1 = Unit){
+        delay(5000)
+        Log.d(SideEffectExample::class.simpleName, "Counter: value is ${state.value}")
+    }
+    Text(text = value.toString())
 }
 
 class SideEffectExample {
