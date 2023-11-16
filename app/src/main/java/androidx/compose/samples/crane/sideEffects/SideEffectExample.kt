@@ -1,5 +1,6 @@
 package androidx.compose.samples.crane.sideEffects
 
+import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
@@ -20,9 +21,11 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -254,7 +257,7 @@ fun ProduceStateExample() {
 
 }
 
-@Preview
+
 @Composable
 fun LoaderComposable() {
 
@@ -269,11 +272,35 @@ fun LoaderComposable() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(imageVector = Icons.Default.Refresh,
                 contentDescription = "Refresh Icon",
-                modifier = Modifier.size(60.dp).rotate(degree.value.toFloat()))
+                modifier = Modifier
+                    .size(60.dp)
+                    .rotate(degree.value.toFloat()))
             Text(text = "Loading...")
 
         }
     }
+}
+
+
+@SuppressLint("UnrememberedMutableState")
+@Preview
+@Composable
+fun DerivedStateExample() {
+    val tableOf = remember{ mutableIntStateOf(5) }
+    val index = produceState(initialValue = 1){
+        repeat(9){
+            delay(1000)
+            value+=1
+        }
+    }
+
+    val message = derivedStateOf { "${tableOf.value} * ${index.value} = ${tableOf.value * index.value}" }
+
+    Box(contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize(1f)){
+        Text(text = message.value, style = MaterialTheme.typography.h2)
+    }
+
 }
 
 class SideEffectExample {
