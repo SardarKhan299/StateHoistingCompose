@@ -1,30 +1,45 @@
 package androidx.compose.samples.crane.sideEffects
 
 import android.media.MediaPlayer
+import android.net.Uri
 import android.util.Log
+import android.view.ViewTreeObserver
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.home.LandingScreen
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@Preview
 @Composable
 fun ListComposable() {
     val categoryState = rememberSaveable {
@@ -83,7 +98,6 @@ fun LaunchEffectComposable() {
 
 }
 
-@Preview
 @Composable
 fun RememberCoroutineExample() {
 
@@ -120,10 +134,10 @@ fun RememberCoroutineExample() {
         }
     }
 
+
     
 }
 
-@Preview
 @Composable
 fun RememberUpdatedState() {
     var counter = rememberSaveable {
@@ -136,6 +150,9 @@ fun RememberUpdatedState() {
     }
 
     Counter(counter.value)
+
+    KeyBoardComposable()
+    TextField(value = "", onValueChange = {})
 
 }
 
@@ -157,7 +174,6 @@ fun b(){
     Log.d(SideEffectExample::class.simpleName, "b: I am function b")
 }
 
-@Preview
 @Composable
 fun RememberUpdatedStateExample() {
     var state = rememberSaveable{
@@ -170,7 +186,6 @@ fun RememberUpdatedStateExample() {
 }
 
 
-@Preview
 @Composable
 fun DisposableEffectExample() {
     var state = rememberSaveable {
@@ -195,12 +210,68 @@ fun DisposableEffectExample() {
 fun MediaComposable() {
     val context = LocalContext.current
     DisposableEffect(key1 = Unit){
-        val mediaPlayer = MediaPlayer.create(context, com.google.maps.android.v3.ktx.R.raw.ic_mic)
+        val mediaPlayer = MediaPlayer.create(context, Uri.EMPTY)
         mediaPlayer.start()
 
         onDispose {
             mediaPlayer.stop()
             mediaPlayer.release()
+        }
+    }
+}
+
+
+@Composable
+fun KeyBoardComposable() {
+    val view = LocalView.current
+    DisposableEffect(key1 = Unit){
+        Log.d(SideEffectExample::class.simpleName, "KeyBoardComposable: Started")
+        val listener = ViewTreeObserver.OnGlobalLayoutListener {
+            val insects = ViewCompat.getRootWindowInsets(view)
+            val isKeyboardVisible = insects?.isVisible(WindowInsetsCompat.Type.ime())
+            Log.d(SideEffectExample::class.simpleName, "KeyBoardComposable: ${isKeyboardVisible.toString()}")
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener { listener }
+
+        onDispose {
+            view.viewTreeObserver.removeOnGlobalLayoutListener { listener }
+        }
+    }
+}
+
+@Composable
+fun ProduceStateExample() {
+    Log.d(SideEffectExample::class.simpleName, "ProduceStateExample: ")
+    val state = produceState(initialValue = 0){
+        for(i in 1..10){
+            delay(1000)
+            value +=1
+        }
+    }
+
+    Text(text = state.value.toString(),
+        style = MaterialTheme.typography.h2)
+
+}
+
+@Preview
+@Composable
+fun LoaderComposable() {
+
+    val degree = produceState(initialValue = 0){
+        while (true){
+            delay(50)
+            value = (value+30) % 360
+        }
+    }
+
+    Box (contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize(1f)){
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(imageVector = Icons.Default.Refresh,
+                contentDescription = "Refresh Icon",
+                modifier = Modifier.size(60.dp).rotate(degree.value.toFloat()))
+            Text(text = "Loading...")
+
         }
     }
 }
