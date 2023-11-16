@@ -1,5 +1,6 @@
 package androidx.compose.samples.crane.sideEffects
 
+import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,14 +9,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.home.LandingScreen
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -163,6 +167,42 @@ fun RememberUpdatedStateExample() {
         Text(text = "Click to change State")
     }
     LandingScreen(onTimeout = { state.value})
+}
+
+
+@Preview
+@Composable
+fun DisposableEffectExample() {
+    var state = rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    DisposableEffect(key1 = state.value) {
+        Log.d(SideEffectExample::class.simpleName, "DisposableEffectExample: Dispose Effect Started...")
+        onDispose {
+            // clean up code will go here.///
+            Log.d(SideEffectExample::class.simpleName, "DisposableEffectExample: Clean Up")
+        }
+    }
+    
+    Button(onClick = { state.value = !state.value }) {
+        Text(text = "Change State..")
+        
+    }
+}
+
+@Composable
+fun MediaComposable() {
+    val context = LocalContext.current
+    DisposableEffect(key1 = Unit){
+        val mediaPlayer = MediaPlayer.create(context, com.google.maps.android.v3.ktx.R.raw.ic_mic)
+        mediaPlayer.start()
+
+        onDispose {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+    }
 }
 
 class SideEffectExample {
